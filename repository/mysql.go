@@ -2,7 +2,7 @@ package repository
 
 import (
 	"errors"
-	"log"
+	"fmt"
 	"sync"
 	"time"
 )
@@ -29,9 +29,9 @@ func NewMySQLRepository() Repository {
 func (m *MySQLRepository) ResolvePersonNameByID(id string) (*string, error) {
 	start := time.Now()
 	defer func() {
-		log.Printf("mysql.ResolvePersonNameByID took %s\n", time.Since(start))
+		fmt.Printf("mysql.ResolvePersonNameByID took %s\n", time.Since(start))
 	}()
-	log.Printf("mysql.ResolvePersonNameByID: %s\n", id)
+	fmt.Printf("mysql.ResolvePersonNameByID: %s\n", id)
 
 	// simulates latency
 	time.Sleep(time.Millisecond * 100)
@@ -48,9 +48,9 @@ func (m *MySQLRepository) ResolvePersonNameByID(id string) (*string, error) {
 func (m *MySQLRepository) Store(id, name string) error {
 	start := time.Now()
 	defer func() {
-		log.Printf("mysql.Store took %s\n", time.Since(start))
+		fmt.Printf("mysql.Store took %s\n", time.Since(start))
 	}()
-	log.Printf("mysql.Store: %s\n", id)
+	fmt.Printf("mysql.Store: %s\n", id)
 
 	// simulates latency
 	time.Sleep(time.Millisecond * 100)

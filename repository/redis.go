@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"log"
+	"fmt"
 	"time"
 
 	"github.com/bluele/gcache"
@@ -27,17 +27,17 @@ func NewRedisRepository(ttl time.Duration, mysql Repository) Repository {
 func (r *RedisRepository) ResolvePersonNameByID(id string) (*string, error) {
 	start := time.Now()
 	defer func() {
-		log.Printf("redis.ResolvePersonNameByID took %s\n\n", time.Since(start))
+		fmt.Printf("redis.ResolvePersonNameByID took %s\n\n", time.Since(start))
 	}()
-	log.Printf("redis.ResolvePersonNameByID: %s\n", id)
-	// if the data is in redis, return it
+	fmt.Printf("redis.ResolvePersonNameByID: %s\n", id)
 
 	// simulating network roundtrip for redis
 	time.Sleep(5 * time.Millisecond)
 	rawData, err := r.redis.Get(id)
 
 	if err == nil && rawData != nil {
-		log.Printf("Cache hit for id: %s\n", id)
+		// if the data is in redis, return it
+		fmt.Printf("Cache hit for id: %s\n", id)
 		data := rawData.(string)
 		return &data, nil
 	}
@@ -45,17 +45,19 @@ func (r *RedisRepository) ResolvePersonNameByID(id string) (*string, error) {
 	if err != nil {
 		// in case of error, do not return
 		// have a try reading from database
-		log.Printf("Cache miss for id: %s\n", id)
+		fmt.Printf("Cache miss for id: %s\n", id)
 	}
 
-	// if the data is not in the cache yet
+	// if the data is not in the cache yet,
 	// get it from database
-	// and eventually store the value to cache
 	result, err := r.mysql.ResolvePersonNameByID(id)
 	if err != nil {
 		return nil, err
 	}
-	defer r.redis.SetWithExpire(id, *result, r.ttl)
+	// and eventually store the value to cache
+	go func(result string) {
+		r.redis.SetWithExpire(id, result, r.ttl)
+	}(*result)
 
 	return result, nil
 }
@@ -64,9 +66,9 @@ func (r *RedisRepository) ResolvePersonNameByID(id string) (*string, error) {
 func (r RedisRepository) Store(id, name string) error {
 	start := time.Now()
 	defer func() {
-		log.Printf("redis.Store took %s\n\n", time.Since(start))
+		fmt.Printf("redis.Store took %s\n\n", time.Since(start))
 	}()
-	log.Printf("redis.Store: %s\n", id)
+	fmt.Printf("redis.Store: %s\n", id)
 
 	// store it on mysql
 	r.mysql.Store(id, name)
