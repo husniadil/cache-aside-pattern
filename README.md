@@ -1,5 +1,7 @@
 # Cache-aside pattern
 
+This is a supplementary repository for [my article](https://dev.to/husniadil/cache-aside-pattern-559f).
+
 ## [`main`](https://github.com/husniadil/cache-aside-pattern/tree/main) branch
 
 Demonstrate a simple implementation of cache-aside pattern in Go.
