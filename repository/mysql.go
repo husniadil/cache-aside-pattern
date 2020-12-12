@@ -43,19 +43,3 @@ func (m *MySQLRepository) ResolvePersonNameByID(id string) (*string, error) {
 	}
 	return nil, errors.New("record not found")
 }
-
-// Store simulates mysql store db.
-func (m *MySQLRepository) Store(id, name string) error {
-	start := time.Now()
-	defer func() {
-		fmt.Printf("mysql.Store took %s\n", time.Since(start))
-	}()
-	fmt.Printf("mysql.Store: %s\n", id)
-
-	// simulates latency
-	time.Sleep(time.Millisecond * 100)
-
-	// simulates store real data
-	m.mysqldb.Store(id, name)
-	return nil
-}

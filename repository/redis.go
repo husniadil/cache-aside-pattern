@@ -61,24 +61,3 @@ func (r *RedisRepository) ResolvePersonNameByID(id string) (*string, error) {
 
 	return result, nil
 }
-
-// Store simulates store db.
-func (r RedisRepository) Store(id, name string) error {
-	start := time.Now()
-	defer func() {
-		fmt.Printf("redis.Store took %s\n\n", time.Since(start))
-	}()
-	fmt.Printf("redis.Store: %s\n", id)
-
-	// store it on mysql
-	r.mysql.Store(id, name)
-
-	// invalidate cache
-	go func(id string) {
-		// simulates latency
-		time.Sleep(time.Millisecond * 5)
-		r.redis.Remove(id)
-	}(id)
-
-	return nil
-}
