@@ -23,13 +23,13 @@ func NewRedisRepository(ttl time.Duration, mysql Repository) Repository {
 	}
 }
 
-// ResolvePersonNameByID simulates mysql call
-func (r *RedisRepository) ResolvePersonNameByID(id string) (*string, error) {
+// DoAnExpensiveQuery simulates mysql call
+func (r *RedisRepository) DoAnExpensiveQuery(id string) (*string, error) {
 	start := time.Now()
 	defer func() {
-		fmt.Printf("redis.ResolvePersonNameByID took %s\n\n", time.Since(start))
+		fmt.Printf("redis.DoAnExpensiveQuery took %s\n\n", time.Since(start))
 	}()
-	fmt.Printf("redis.ResolvePersonNameByID: %s\n", id)
+	fmt.Printf("redis.DoAnExpensiveQuery: %s\n", id)
 
 	// simulating network roundtrip for redis
 	time.Sleep(5 * time.Millisecond)
@@ -50,7 +50,7 @@ func (r *RedisRepository) ResolvePersonNameByID(id string) (*string, error) {
 
 	// if the data is not in the cache yet,
 	// get it from database
-	result, err := r.mysql.ResolvePersonNameByID(id)
+	result, err := r.mysql.DoAnExpensiveQuery(id)
 	if err != nil {
 		return nil, err
 	}

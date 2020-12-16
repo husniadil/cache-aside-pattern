@@ -25,13 +25,13 @@ func NewMySQLRepository() Repository {
 	return repo
 }
 
-// ResolvePersonNameByID simulates mysql query.
-func (m *MySQLRepository) ResolvePersonNameByID(id string) (*string, error) {
+// DoAnExpensiveQuery simulates mysql query.
+func (m *MySQLRepository) DoAnExpensiveQuery(id string) (*string, error) {
 	start := time.Now()
 	defer func() {
-		fmt.Printf("mysql.ResolvePersonNameByID took %s\n", time.Since(start))
+		fmt.Printf("mysql.DoAnExpensiveQuery took %s\n", time.Since(start))
 	}()
-	fmt.Printf("mysql.ResolvePersonNameByID: %s\n", id)
+	fmt.Printf("mysql.DoAnExpensiveQuery: %s\n", id)
 
 	// simulates latency
 	time.Sleep(time.Millisecond * 100)
