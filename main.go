@@ -18,17 +18,17 @@ func main() {
 
 	var wg sync.WaitGroup
 	wg.Add(5)
-	var names []string
+	names := make([]string, 5)
 	for i := 0; i < 5; i++ {
-		go func(id string) {
+		go func(i int, id string) {
 			defer wg.Done()
 			name, err := repo.DoAnExpensiveQuery(id)
 			if err != nil {
 				fmt.Printf("Error loading [%s]: %s", id, err.Error())
 				return
 			}
-			names = append(names, *name)
-		}(id)
+			names[i] = *name
+		}(i, id)
 	}
 	wg.Wait()
 
