@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/bluele/gcache"
+	"golang.org/x/sync/singleflight"
 )
 
 // RedisRepository simulates redis repository.
@@ -12,6 +13,7 @@ type RedisRepository struct {
 	redis gcache.Cache
 	mysql Repository
 	ttl   time.Duration
+	sf    singleflight.Group
 }
 
 // NewRedisRepository instantiates a new RedisRepository.
@@ -20,6 +22,7 @@ func NewRedisRepository(ttl time.Duration, mysql Repository) Repository {
 		redis: gcache.New(100).LRU().Build(),
 		mysql: mysql,
 		ttl:   ttl,
+		sf:    singleflight.Group{},
 	}
 }
 
@@ -50,10 +53,25 @@ func (r *RedisRepository) DoAnExpensiveQuery(id string) (*string, error) {
 
 	// if the data is not in the cache yet,
 	// get it from database
-	result, err := r.mysql.DoAnExpensiveQuery(id)
+	mysqlResult, err, _ := r.sf.Do(id, func() (interface{}, error) {
+		res, errMySQL := r.mysql.DoAnExpensiveQuery(id)
+		if errMySQL != nil {
+			return nil, errMySQL
+		}
+		return res, nil
+	})
 	if err != nil {
 		return nil, err
 	}
+
+	var result *string
+	switch res := mysqlResult.(type) {
+	case string:
+		result = &res
+	case *string:
+		result = res
+	}
+
 	// and eventually store the value to cache
 	go func(result string) {
 		r.redis.SetWithExpire(id, result, r.ttl)
